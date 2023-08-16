@@ -1,237 +1,118 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:primeiro_flutter/ficha.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class MyObject {
-  final String charName;
-  final String playerName;
-  final String classe;
-  final String antecedente;
-  final String race;
-  final String alinhamento;
-  final int xPoints;
-  final int bonusDeProeficiencia;
+void main() {
+  runApp(UnitConverterApp());
+}
 
-  final int forca;
-  final int destreza;
-  final int constituicao;
-  final int inteligencia;
-  final int sabedoria;
-  final int carisma;
-
-  final int sgForca;
-  final int sgDestreza;
-  final int sgConsituicao;
-  final int sgInteligencia;
-  final int sgSabedoria;
-  final int sgCarisma;
-
-  final int percepcao;
-  final String equipamento;
-  final int classeDeArmadura;
-  final int iniciativa;
-  final double deslocamento;
-
-  final int pv;
-  final int pvMax;
-  final int pvTemporario;
-
-  final int totalDadoVida;
-  final int totalVida;
-
-  MyObject(this.charName, this.playerName, this.classe, this.alinhamento, this.antecedente, this.bonusDeProeficiencia, this.carisma, this.classeDeArmadura, this.constituicao, this.deslocamento, this.destreza, this.equipamento, this.forca, this.iniciativa, this.inteligencia, this.percepcao, this.pv, this.pvMax, this.pvTemporario, this.race, this.sabedoria, this.sgCarisma, this.sgConsituicao, this.sgDestreza, this.sgForca, this.sgInteligencia, this.sgSabedoria, this.totalDadoVida, this.totalVida, this.xPoints);
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': charName,
-      'classe': classe,
-      'alinhamento': alinhamento,
-      'antededente': antecedente,
-      'bonusDeProeficiencia': bonusDeProeficiencia,
-      'carisma': carisma,
-      'classeDeArmadura': classeDeArmadura,
-      'constituicao': constituicao,
-      'deslocamento': deslocamento,
-      'destreza': destreza,
-      'equipamento': equipamento,
-      'forca': forca,
-      'iniciativa': iniciativa,
-      'inteligencia': inteligencia,
-      'percepcao': percepcao,
-      'pv': pv,
-      'pvMax': pvMax,
-      'pvTemporario': pvTemporario,
-      'race': race,
-      'sabedoria': sabedoria,
-      'sgCarisma': sgCarisma,
-      'sgConsituicao': sgConsituicao,
-      'sgDestreza': sgDestreza,
-      'sgForca': sgForca,
-      'sgInteligencia': sgInteligencia,
-      'sgSabedoria': sgSabedoria,
-      'totalDadoVida': totalDadoVida,
-      'totalVida': totalVida,
-      'xPoints': xPoints
-    };
-  }
-
-  factory MyObject.fromJson(Map<String, dynamic> json) {
-    return MyObject(
-        json['name'],
-        json['playerName'],
-        json['classe'],
-        json['classe'],
-        json['alinhamento'],
-        json['antecedente'],
-        json['bonusDeProeficiencia'],
-        json['carisma'],
-        json['classeDeArmadura'],
-        json['constituicao'],
-        json['deslocamento'],
-        json['destreza'],
-        json['equipamento'],
-        json['forca'],
-        json['iniciativa'],
-        json['inteligencia'],
-        json['percepcao'],
-        json['pv'],
-        json['pvTemporario'],
-        json['race'],
-        json['sabedoria'],
-        json['sgCarisma'],
-        json['sgConsituicao'],
-        json['sgDestreza'],
-        json['sgForca'],
-        json['sgInteligencia'],
-        json['sgSabedoria'],
-        json['totalDadoVida'],
-        json['totalVida'],
-        json['xPoints']
+class UnitConverterApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Conversor de Unidade',
+      home: UnitConverterScreen(),
     );
   }
 }
 
-class PlayerPage extends StatelessWidget {
-  final List<MyObject> myObjects = [
-    // Add more objects here
-  ];
+class UnitConverterScreen extends StatefulWidget {
+  @override
+  _UnitConverterScreenState createState() => _UnitConverterScreenState();
+}
 
-  Future<void> saveObjects() async {
-    final prefs = await SharedPreferences.getInstance();
-    final objectsJson = myObjects.map((obj) => obj.toJson()).toList();
-    prefs.setString(
-        'myObjects', jsonEncode(objectsJson)); // Serialize to JSON here
+class _UnitConverterScreenState extends State<UnitConverterScreen> {
+  final List<String> units = ['Metros', 'Pes', 'Polegadas'];
+
+  // Selected units
+  String fromUnit = 'Metros';
+  String toUnit = 'Pes';
+
+  double inputValue = 0.0;
+
+  double convertedValue = 0.0;
+
+  double convertLength(double input, String fromUnit, String toUnit) {
+    if (fromUnit == 'Metros' && toUnit == 'Pes') {
+      return input * 3.28084;
+    } else if (fromUnit == 'Metros' && toUnit == 'Polegadas') {
+      return input * 39.3701;
+    } else if (fromUnit == 'Pes' && toUnit == 'Metros') {
+      return input * 0.3048;
+    } else if (fromUnit == 'Pes' && toUnit == 'Polegadas') {
+      return input * 12;
+    } else if (fromUnit == 'Polegadas' && toUnit == 'Metros') {
+      return input / 39.37;
+    } else if (fromUnit == 'Polegadas' && toUnit == 'Pes') {
+      return input / 12;
+    } else if (fromUnit == toUnit) {
+      return input;
+    }
+
+    return 0.0;
+  }
+
+  void convert() {
+    setState(() {
+      convertedValue = convertLength(inputValue, fromUnit, toUnit);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white10,
-        width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.symmetric(horizontal: 40.0),
+      appBar: AppBar(
+        title: const Text('Converter unidades'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(height: 50 , width: MediaQuery.of(context).size.width),
-            Column(
-              children: [
-                Text(
-                  "D&D",
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withOpacity(0.2),
-                        offset: Offset(0, 3),
-                        blurRadius: 5,
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  "5ª geração",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withOpacity(0.2),
-                        offset: Offset(0, 3),
-                        blurRadius: 5,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            TextField(
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Digite o valor:'),
+              onChanged: (value) {
+                inputValue = double.tryParse(value) ?? 0.0;
+              },
             ),
-          SizedBox(height: 48),
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Nome do jogador: ",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.brown,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                SizedBox(height: 4),
-                TextFormField(
-                  style: TextStyle(
-                    color: Colors.white54
-                  ),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.brown)
-                    ),
-                    focusColor: Colors.white70,
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.brown)
-                    ),
-                    fillColor: Colors.white60,
-                  ),
-                    ),
-                SizedBox(height: 40),
-                Text(
-                    "Fichas",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown
-                  )
-                ),
-                ElevatedButton(
-                  onPressed: saveObjects,
-                  child: Text('Save Objects'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => FichaPage()),
-                    );
-                  },
-                  child: Text('Ficha 1'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => FichaPage()),
-                    );
-                  },
-                  child: Text('Ficha 2'),
-                ),
-                  ],
-                ),
+            const SizedBox(height: 16.0),
+            DropdownButton<String>(
+              value: fromUnit,
+              onChanged: (newValue) {
+                setState(() {
+                  fromUnit = newValue!;
+                });
+              },
+              items: units.map<DropdownMenuItem<String>>((String unit) {
+                return DropdownMenuItem<String>(
+                  value: unit,
+                  child: Text(unit),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16.0),
+            DropdownButton<String>(
+              value: toUnit,
+              onChanged: (newValue) {
+                setState(() {
+                  toUnit = newValue!;
+                });
+              },
+              items: units.map<DropdownMenuItem<String>>((String unit) {
+                return DropdownMenuItem<String>(
+                  value: unit,
+                  child: Text(unit),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: convert,
+              child: const Text('Converter'),
+            ),
+            const SizedBox(height: 16.0),
+            Text(
+              'Resultado: $convertedValue',
+              style: const TextStyle(fontSize: 18.0),
             ),
           ],
         ),
@@ -239,10 +120,3 @@ class PlayerPage extends StatelessWidget {
     );
   }
 }
-
-void main() {
-  runApp(MaterialApp(
-    home: PlayerPage(),
-  ));
-}
-
